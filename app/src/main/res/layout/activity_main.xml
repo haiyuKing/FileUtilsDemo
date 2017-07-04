@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.why.project.fileutilsdemo.activity.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_getSdPath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取SD根目录路径"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_makeFolders"
+        android:layout_below="@id/tv_getSdPath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="创建目录"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_writeFile"
+        android:layout_below="@id/tv_makeFolders"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="将字符串写入文件"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_readFile"
+        android:layout_below="@id/tv_writeFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="读取文件"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_getFileNameWithoutExtension"
+        android:layout_below="@id/tv_readFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取文件名（不带后缀）"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_getFileName"
+        android:layout_below="@id/tv_getFileNameWithoutExtension"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取文件名（带后缀）"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_getFileExtension"
+        android:layout_below="@id/tv_getFileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取后缀名"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_getFileSize"
+        android:layout_below="@id/tv_getFileExtension"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取文件大小"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_deleteFileRecursion"
+        android:layout_below="@id/tv_getFileSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="删除文件"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/tv_getAppFilePath"
+        android:layout_below="@id/tv_deleteFileRecursion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="获取APP的文件路径"
+        android:layout_margin="5dp"
+        android:padding="5dp"
+        android:background="#e9e9e9"
+        android:focusable="true"
+        android:clickable="true"/>
+
+</RelativeLayout>
