@@ -1,8 +1,13 @@
 package com.why.project.fileutilsdemo.utils.fileutil;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
+import android.provider.MediaStore;
+import android.util.Log;
 
 import com.why.project.fileutilsdemo.MyApplication;
 
@@ -171,6 +176,7 @@ public class FileUtils {
 			fileWriter = new FileWriter(filePath, append);
 			fileWriter.write(content);
 			fileWriter.close();
+			updateGallery(filePath);//媒体库数据更新
 			return true;
 		} catch (IOException e) {
 			throw new RuntimeException("IOException occurred. ", e);
@@ -211,6 +217,7 @@ public class FileUtils {
 				fileWriter.write(line);
 			}
 			fileWriter.close();
+			updateGallery(filePath);//媒体库数据更新
 			return true;
 		} catch (IOException e) {
 			throw new RuntimeException("IOException occurred. ", e);
@@ -304,6 +311,7 @@ public class FileUtils {
 				o.write(data, 0, length);
 			}
 			o.flush();
+			updateGallery(file.getAbsolutePath());//媒体库数据更新
 			return true;
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("FileNotFoundException occurred. ", e);
@@ -599,91 +607,6 @@ public class FileUtils {
 		return (dire.exists() && dire.isDirectory());
 	}
 
-
-	/**
-	 * delete file or directory
-	 * <ul>
-	 * <li>if path is null or empty, return true</li>
-	 * <li>if path not exist, return true</li>
-	 * <li>if path exist, delete recursion. return true</li>
-	 * <ul>
-	 *
-	 * @param path
-	 * @return
-	 */
-	public static boolean deleteFileRecursion(String path) {
-		if (StringUtils.isBlank(path)) {
-			return true;
-		}
-
-		File file = new File(path);
-		if (!file.exists()) {
-			return true;
-		}
-		if (file.isFile()) {
-			return file.delete();
-		}
-		if (!file.isDirectory()) {
-			return false;
-		}
-		for (File f : file.listFiles()) {
-			if (f.isFile()) {
-				f.delete();
-			} else if (f.isDirectory()) {
-				deleteFile(f.getAbsolutePath());
-			}
-		}
-		return file.delete();
-	}
-
-
-	/**删除全部文件:handler用来异步*/
-	public static void deleteAllFile(final File dir, final Handler handler)
-	{
-		File[] arrayOfFile = dir.listFiles();
-		if ((arrayOfFile != null) && (arrayOfFile.length > 0))
-		{
-			for(int j = 0;j < arrayOfFile.length;j++){
-				final File file = arrayOfFile[j];
-				if (file.isDirectory()){
-					if (handler != null){
-						handler.post(new Runnable()
-						{
-							public void run()
-							{
-								deleteAllFile(dir, handler);
-							}
-						});
-					}else{
-						deleteAllFile(file, null);
-					}
-					
-					try{
-						file.delete();
-					}catch (Exception e)
-					{}
-				}
-				if(file.exists()) {
-					if(handler != null) {
-						handler.post(new Runnable() {
-							public void run() {
-								deleteAllFile(dir, handler);
-							}
-						});
-					}
-					else {
-						deleteAllFile(file,null);
-					}
-					try {
-						file.delete();
-					}
-					catch(Exception e) {
-					}
-				}
-			}
-		}
-	}
-
 	/**删除所有文件*/
 	public static void deleteAllFiles(File root)
 	{
@@ -699,6 +622,7 @@ public class FileUtils {
 				}else if(file.exists()){
 					deleteAllFiles(file);
 					file.delete();
+					updateGallery(file.getAbsolutePath());//媒体库数据更新
 				}
 			}
 		}
@@ -709,6 +633,7 @@ public class FileUtils {
 	{
 		if(file != null) {
 			file.delete();
+			updateGallery(file.getAbsolutePath());//媒体库数据更新
 		}
 	}
 	/**删除单个文件*/
@@ -770,4 +695,62 @@ public class FileUtils {
 		return stringBuffer.toString();
 	}
 
+	//高效获取指定类型文件
+	//https://blog.csdn.net/Programming2012/article/details/50060099
+	public static List<String> getSpecificTypeOfFile(String[] extension)
+	{
+		List<String> filePathsList = new ArrayList<String>();
+		//从外存中获取
+		Uri fileUri = MediaStore.Files.getContentUri("external");
+		//筛选列，这里只筛选了：文件路径和不含后缀的文件名、后缀名
+		String[] projection=new String[]{
+				MediaStore.Files.FileColumns.DATA, MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.MIME_TYPE
+		};
+		//构造筛选语句
+		String selection="";
+		for(int i=0; i<extension.length; i++)
+		{
+			if(i!=0)
+			{
+				selection = selection + " OR ";
+			}
+			selection = selection + MediaStore.Files.FileColumns.DATA + " LIKE '%"+extension[i]+"'";
+		}
+		//按时间递增顺序对结果进行排序;待会从后往前移动游标就可实现时间递减
+		String sortOrder = MediaStore.Files.FileColumns.DATE_MODIFIED;
+		//获取内容解析器对象
+		ContentResolver resolver = MyApplication.getAppContext().getContentResolver();
+		//获取游标
+		Cursor cursor = resolver.query(fileUri, projection, selection, null, sortOrder);
+		if(cursor==null)
+			return filePathsList;
+		//游标从最后开始往前递减，以此实现时间递减顺序（最近访问的文件，优先显示）
+		if(cursor.moveToLast())
+		{
+			do{
+				//输出文件的完整路径
+				String filePath = cursor.getString(0);
+				filePathsList.add(filePath);
+				Log.d("filePath=", filePath);
+			}while(cursor.moveToPrevious());
+		}
+		cursor.close();
+
+		return filePathsList;
+	}
+
+	//媒体库数据更新【添加文件、删除文件的时候需要执行】
+	//filePath：是我们的文件全名，包括后缀哦
+	//https://blog.csdn.net/trent1985/article/details/23907093
+	private static void updateGallery(String filePath)
+	{
+		MediaScannerConnection.scanFile(MyApplication.getAppContext(),
+				new String[] { filePath }, null,
+				new MediaScannerConnection.OnScanCompletedListener() {
+					public void onScanCompleted(String path, Uri uri) {
+						Log.i("ExternalStorage", "Scanned " + path + ":");
+						Log.i("ExternalStorage", "-> uri=" + uri);
+					}
+				});
+	}
 }

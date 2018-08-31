@@ -142,8 +142,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				String filePath = FileUtils.getSDPath() + File.separator + "fileUtilDir" + File.separator + "file.txt";
 				Log.w(TAG,"filePath="+filePath);
-				boolean delFileState = FileUtils.deleteFileRecursion(filePath);
-				Log.w(TAG,"delFileState="+delFileState);
+				FileUtils.deleteFile(filePath);
 			}
 		});
 
