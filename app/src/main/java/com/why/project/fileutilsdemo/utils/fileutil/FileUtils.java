@@ -589,7 +589,11 @@ public class FileUtils {
 		}
 
 		File file = new File(filePath);
-		return (file.exists() && file.isFile());
+		boolean isExist = (file.exists() && file.isFile());
+		if(! isExist){
+			updateGallery(filePath);//如果不存在，说明手动删除了，那么就需要更新媒体库
+		}
+		return isExist;
 	}
 
 	/**
